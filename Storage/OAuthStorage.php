@@ -121,7 +121,7 @@ class OAuthStorage implements IOAuth2RefreshTokens, IOAuth2GrantUser, IOAuth2Gra
         return $this->accessTokenManager->findTokenByToken($token);
     }
 
-    public function createAccessToken($tokenString, IOAuth2Client $client, $data, $expires, $scope = null)
+    public function createAccessToken($tokenString, IOAuth2Client $client, $data, $expires, $scope = null, $selected_contact = null)
     {
         if (!$client instanceof ClientInterface) {
             throw new \InvalidArgumentException('Client has to implement the ClientInterface');
@@ -132,6 +132,9 @@ class OAuthStorage implements IOAuth2RefreshTokens, IOAuth2GrantUser, IOAuth2Gra
         $token->setClient($client);
         $token->setExpiresAt($expires);
         $token->setScope($scope);
+        $token->setSelectedContact($selected_contact);
+        
+        //error_log('createAccessToken token : '.var_export($token,true),3,'/tmp/debug');
 
         if (null !== $data) {
             $token->setUser($data);
@@ -193,6 +196,7 @@ class OAuthStorage implements IOAuth2RefreshTokens, IOAuth2GrantUser, IOAuth2Gra
             throw new \InvalidArgumentException('Client has to implement the ClientInterface');
         }
 
+        //error_log('createAuthCode with data : '.var_export($data,true).PHP_EOL,3,'/tmp/debug');        
         $authCode = $this->authCodeManager->createAuthCode();
         $authCode->setToken($code);
         $authCode->setClient($client);
@@ -216,7 +220,7 @@ class OAuthStorage implements IOAuth2RefreshTokens, IOAuth2GrantUser, IOAuth2Gra
     /**
      * {@inheritdoc}
      */
-    public function createRefreshToken($tokenString, IOAuth2Client $client, $data, $expires, $scope = null)
+    public function createRefreshToken($tokenString, IOAuth2Client $client, $data, $expires, $scope = null, $selected_contact = null)
     {
         if (!$client instanceof ClientInterface) {
             throw new \InvalidArgumentException('Client has to implement the ClientInterface');
@@ -227,6 +231,9 @@ class OAuthStorage implements IOAuth2RefreshTokens, IOAuth2GrantUser, IOAuth2Gra
         $token->setClient($client);
         $token->setExpiresAt($expires);
         $token->setScope($scope);
+
+        $token->setSelectedContact($selected_contact);
+        //error_log('createRefreshToken token : '.var_export($token,true),3,'/tmp/debug');
 
         if (null !== $data) {
             $token->setUser($data);

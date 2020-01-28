@@ -59,6 +59,7 @@ class OAuthProvider implements AuthenticationProviderInterface
      */
     public function authenticate(TokenInterface $token)
     {
+        //error_log('authenticate : '.var_export($token,true),3,'/tmp/debug');
         if (!$this->supports($token)) {
             return;
         }
@@ -67,6 +68,8 @@ class OAuthProvider implements AuthenticationProviderInterface
             $tokenString = $token->getToken();
 
             if ($accessToken = $this->serverService->verifyAccessToken($tokenString)) {
+                //error_log('accessToken : '.var_export($accessToken,true),3,'/tmp/debug');
+
                 $scope = $accessToken->getScope();
                 $user = $accessToken->getUser();
 
@@ -81,6 +84,8 @@ class OAuthProvider implements AuthenticationProviderInterface
                             $e->getMessage()
                         );
                     }
+
+                    //error_log('user from acessToken : '.var_export($user,true),3,'/tmp/debug');
 
                     $token->setUser($user);
                 }

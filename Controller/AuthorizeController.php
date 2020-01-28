@@ -69,12 +69,26 @@ class AuthorizeController implements ContainerAwareInterface
         $form = $this->container->get('fos_oauth_server.authorize.form');
         $formHandler = $this->container->get('fos_oauth_server.authorize.form.handler');
 
+
+        //Call form to select user if alternatives users exists
+        if(
+            !empty($user->getAlternativeUsers())
+            && empty($request->get("alternative_user"))
+        ){
+            $redirectUrl = '/oauth/v2/auth/login_alternative_user?'.$request->getQueryString();
+            return new RedirectResponse($redirectUrl, 302);
+        }
+
         $event = $this->container->get('event_dispatcher')->dispatch(
             OAuthEvent::PRE_AUTHORIZATION_PROCESS,
             new OAuthEvent($user, $this->getClient())
         );
 
+        //error_log('event  '.var_export($event,true).PHP_EOL,3,'/tmp/debug');
+
         if ($event->isAuthorizedClient()) {
+            //error_log('isAuthorizedClient  '.PHP_EOL,3,'/tmp/debug');
+
             $scope = $request->get('scope', null);
 
             return $this->container
@@ -83,6 +97,7 @@ class AuthorizeController implements ContainerAwareInterface
         }
 
         if (true === $formHandler->process()) {
+            //error_log('$formHandler->process'.PHP_EOL,3,'/tmp/debug');
             return $this->processSuccess($user, $formHandler, $request);
         }
 
@@ -104,6 +119,7 @@ class AuthorizeController implements ContainerAwareInterface
      */
     protected function processSuccess(UserInterface $user, AuthorizeFormHandler $formHandler, Request $request)
     {
+        //error_log('processSuccess '.PHP_EOL,3,'/tmp/debug');
         if (true === $this->container->get('session')->get('_fos_oauth_server.ensure_logout')) {
             $this->getTokenStorage()->setToken(null);
             $this->container->get('session')->invalidate();
@@ -188,9 +204,10 @@ class AuthorizeController implements ContainerAwareInterface
     private function getTokenStorage()
     {
         if ($this->container->has('security.token_storage')) {
+            //error_log('security.token_storage'.PHP_EOL,3,'/tmp/debug');
             return $this->container->get('security.token_storage');
         }
-
+        //error_log('security.context'.PHP_EOL,3,'/tmp/debug');
         return $this->container->get('security.context');
     }
 }

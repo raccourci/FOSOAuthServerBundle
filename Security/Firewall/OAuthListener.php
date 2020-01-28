@@ -64,6 +64,7 @@ class OAuthListener implements ListenerInterface
      */
     public function handle(GetResponseEvent $event)
     {
+        //error_log('OAuth Lister handle'.PHP_EOL,3,'/tmp/debug');
         if (null === $oauthToken = $this->serverService->getBearerToken($event->getRequest(), true)) {
             return;
         }
@@ -73,6 +74,7 @@ class OAuthListener implements ListenerInterface
 
         try {
             $returnValue = $this->authenticationManager->authenticate($token);
+            //error_log('returnValue : '.var_export($returnValue,true).PHP_EOL,3,'/tmp/debug');
 
             if ($returnValue instanceof TokenInterface) {
                 return $this->securityContext->setToken($returnValue);
