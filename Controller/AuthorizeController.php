@@ -79,7 +79,7 @@ class AuthorizeController implements ContainerAwareInterface
             $redirectUrl = '/oauth/v2/auth/login_alternative_user?'.$request->getQueryString();
             return new RedirectResponse($redirectUrl, 302);
         }else if(!empty($request->get("alternative_user"))){
-            $user->setSelectedUser($request->get("alternative_user"));
+            $user->setSelectedContact($request->get("alternative_user"));
         }
 
         $event = $this->container->get('event_dispatcher')->dispatch(
